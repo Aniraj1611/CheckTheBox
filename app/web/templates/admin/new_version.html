@@ -1,0 +1,48 @@
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h1>Create New Policy Version</h1>
+            <p style="color: #6c757d; margin-top: 0.5rem;">
+                Publish a new version of "{{.Policy.Title}}". Previous versions will be automatically marked as
+                superseded.
+            </p>
+        </div>
+        <a href="/admin/policies/{{.Policy.ID}}/versions" class="btn btn-secondary">← Back to Versions</a>
+    </div>
+</div>
+
+<div class="card">
+    <form method="POST" action="/admin/policies/{{.Policy.ID}}/new-version"
+        style="display: flex; flex-direction: column; gap: 1.5rem;">
+        <input type="hidden" name="csrf_token" value="{{$.csrf_token}}">
+
+        <div style="display: flex; flex-direction: column;">
+            <label for="version" style="font-weight: 500; margin-bottom: 0.5rem;">Version Number *</label>
+            <input type="text" id="version" name="version" required placeholder="e.g., 1.1, 2.0, 2.5"
+                style="padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;">
+        </div>
+
+        <div style="display: flex; flex-direction: column;">
+            <label for="summary" style="font-weight: 500; margin-bottom: 0.5rem;">Summary *</label>
+            <input type="text" id="summary" name="summary" required placeholder="Brief summary of changes"
+                style="padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;">
+        </div>
+
+        <div style="display: flex; flex-direction: column;">
+            <label for="content" style="font-weight: 500; margin-bottom: 0.5rem;">Policy Content *</label>
+            <textarea id="content" name="content" required placeholder="Full policy content..."
+                style="padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem; min-height: 300px; resize: vertical;"></textarea>
+        </div>
+
+        <div style="display: flex; flex-direction: column;">
+            <label for="effective_start" style="font-weight: 500; margin-bottom: 0.5rem;">Effective Start Date *</label>
+            <input type="date" id="effective_start" name="effective_start" required
+                style="padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;">
+        </div>
+
+        <div style="display: flex; gap: 1rem; padding-top: 1rem; border-top: 2px solid #ddd;">
+            <button type="submit" class="btn" style="background: #10b981; color: white;">✓ Publish New Version</button>
+            <a href="/admin/policies/{{.Policy.ID}}/versions" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>

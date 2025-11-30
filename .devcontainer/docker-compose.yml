@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+    volumes:
+      - ..:/workspace:cached
+    command: sleep infinity
+    network_mode: service:db
+    environment:
+      - DATABASE_URL=postgres://checkthebox:devpassword@localhost:5432/checkthebox?sslmode=disable
+      - SESSION_SECRET=dev-secret-change-in-production
+      - PORT=8080
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:14-alpine
+    restart: unless-stopped
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=checkthebox
+      - POSTGRES_PASSWORD=devpassword
+      - POSTGRES_DB=checkthebox
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U checkthebox"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres-data:
+

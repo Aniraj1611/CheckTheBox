@@ -1,0 +1,136 @@
+<div class="card">
+    <h1>Staff Dashboard</h1>
+    <p style="color: #6c757d; margin-top: 0.5rem;">
+        Welcome back! Here's your policy acknowledgment overview.
+    </p>
+</div>
+
+<!-- Statistics Cards -->
+<div
+    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+    <div class="card"
+        style="text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+        <h3 style="font-size: 2.5rem; margin: 0;">{{if .Stats}}{{.Stats.TotalAssigned}}{{else}}0{{end}}</h3>
+        <p style="margin: 0.5rem 0 0 0; opacity: 0.9;">Total Assigned</p>
+    </div>
+
+    <div class="card"
+        style="text-align: center; background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white;">
+        <h3 style="font-size: 2.5rem; margin: 0;">{{if .Stats}}{{.Stats.CompletedCount}}{{else}}0{{end}}</h3>
+        <p style="margin: 0.5rem 0 0 0; opacity: 0.9;">Completed</p>
+    </div>
+
+    <div class="card"
+        style="text-align: center; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;">
+        <h3 style="font-size: 2.5rem; margin: 0;">
+            {{if .Stats}}{{printf "%.1f" .Stats.CompletionRate}}{{else}}0.0{{end}}%
+        </h3>
+        <p style="margin: 0.5rem 0 0 0; opacity: 0.9;">Completion Rate</p>
+    </div>
+
+    <div class="card"
+        style="text-align: center; background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white;">
+        <h3 style="font-size: 2.5rem; margin: 0;">{{if .Stats}}{{.Stats.OverdueCount}}{{else}}0{{end}}</h3>
+        <p style="margin: 0.5rem 0 0 0; opacity: 0.9;">Overdue</p>
+    </div>
+</div>
+
+<!-- Pending Assignments -->
+<div class="card">
+    <h2 style="font-size: 1.5rem; margin-bottom: 1rem;">⏳ Pending Policies</h2>
+    {{$hasPending := false}}
+    {{range .Assignments}}
+    {{if not .AcknowledgedAt}}
+    {{$hasPending = true}}
+    {{end}}
+    {{end}}
+
+    {{if $hasPending}}
+    <table>
+        <thead>
+            <tr>
+                <th>Policy</th>
+                <th>Version</th>
+                <th>Due Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{range .Assignments}}
+            {{if not .AcknowledgedAt}}
+            <tr>
+                <td><strong>{{.PolicyTitle}}</strong></td>
+                <td>{{.PolicyVersion}}</td>
+                <td>
+                    {{if .DueDate}}
+                    {{.DueDate.Format "Jan 02, 2006"}}
+                    {{else}}
+                    <span style="color: #999;">No due date</span>
+                    {{end}}
+                </td>
+                <td>
+                    <a href="/staff/policies/{{.AssignmentID}}" class="btn btn-secondary"
+                        style="font-size: 0.875rem; padding: 0.5rem 1rem;">
+                        Review & Acknowledge
+                    </a>
+                </td>
+            </tr>
+            {{end}}
+            {{end}}
+        </tbody>
+    </table>
+    {{else}}
+    <p style="text-align: center; color: #6c757d; padding: 2rem;">
+        🎉 All caught up! No pending acknowledgments.
+    </p>
+    {{end}}
+</div>
+
+<!-- Completed Assignments -->
+<div class="card" style="margin-top: 1.5rem;">
+    <h2 style="font-size: 1.5rem; margin-bottom: 1rem;">✅ Completed Policies</h2>
+    {{$hasCompleted := false}}
+    {{range .Assignments}}
+    {{if .AcknowledgedAt}}
+    {{$hasCompleted = true}}
+    {{end}}
+    {{end}}
+
+    {{if $hasCompleted}}
+    <table>
+        <thead>
+            <tr>
+                <th>Policy</th>
+                <th>Version</th>
+                <th>Acknowledged On</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{range .Assignments}}
+            {{if .AcknowledgedAt}}
+            <tr style="background-color: #f8f9fa;">
+                <td><strong>{{.PolicyTitle}}</strong></td>
+                <td>{{.PolicyVersion}}</td>
+                <td>
+                    <span style="color: #28a745;">
+                        ✓ {{.AcknowledgedAt.Format "Jan 02, 2006 at 3:04 PM"}}
+                    </span>
+                </td>
+            </tr>
+            {{end}}
+            {{end}}
+        </tbody>
+    </table>
+    {{else}}
+    <p style="text-align: center; color: #6c757d; padding: 2rem;">
+        No completed policies yet.
+    </p>
+    {{end}}
+</div>
+
+<style>
+    .card:hover {
+        transform: translateY(-2px);
+        transition: all 0.2s;
+    }
+</style>

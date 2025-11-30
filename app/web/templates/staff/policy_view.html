@@ -1,0 +1,50 @@
+<div class="card">
+    <h1>{{.PolicyVersion.Version}} - Policy Review</h1>
+    <p style="color: #6c757d; margin-top: 0.5rem;">
+        Please read the policy carefully before acknowledging.
+    </p>
+</div>
+
+<div class="card">
+    <div style="margin-bottom: 2rem;">
+        <h3>Policy Information</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+            <div>
+                <strong>Version:</strong> {{.PolicyVersion.Version}}
+            </div>
+            {{if .PolicyVersion.EffectiveStart}}
+            <div>
+                <strong>Effective Date:</strong> {{.PolicyVersion.EffectiveStart.Format "Jan 02, 2006"}}
+            </div>
+            {{end}}
+        </div>
+    </div>
+
+    {{if .PolicyVersion.Summary}}
+    <div style="margin-bottom: 2rem; padding: 1rem; background: #f8f9fa; border-radius: 4px;">
+        <h4>Summary</h4>
+        <p style="margin-top: 0.5rem;">{{.PolicyVersion.Summary}}</p>
+    </div>
+    {{end}}
+
+    <div style="margin-bottom: 2rem;">
+        <h3>Policy Content</h3>
+        <div style="margin-top: 1rem; line-height: 1.6; white-space: pre-wrap;">{{.PolicyVersion.Content}}</div>
+    </div>
+
+    <form method="POST" action="/staff/policies/{{.Assignment.ID}}/acknowledge"
+        style="border-top: 2px solid #ddd; padding-top: 2rem;">
+        <input type="hidden" name="csrf_token" value="{{$.csrf_token}}">
+        <div style="background: #fff3cd; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
+            <strong>⚠️ Important:</strong> By clicking "I Acknowledge", you confirm that you have read and understood
+            this policy.
+        </div>
+
+        <button type="submit"
+            style="background: #10b981; color: white; padding: 1rem 2rem; border: none; border-radius: 4px; font-size: 1rem; font-weight: bold; cursor: pointer; width: 100%;">
+            ✓ I Acknowledge This Policy
+        </button>
+    </form>
+
+
+</div>

@@ -1,0 +1,51 @@
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h1>Archived Policies</h1>
+            <p style="color: #6c757d; margin-top: 0.5rem;">
+                View all archived policies that are no longer active.
+            </p>
+        </div>
+        <a href="/admin/policies" class="btn btn-secondary">
+            ← Back to Active Policies
+        </a>
+    </div>
+</div>
+
+<div class="card">
+    {{if .Policies}}
+    <table>
+        <thead>
+            <tr>
+                <th>Policy Title</th>
+                <th>Created Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{range .Policies}}
+            <tr style="opacity: 0.7;">
+                <td>
+                    <strong>{{.Title}}</strong>
+                    <span
+                        style="background: #6c757d; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; margin-left: 0.5rem;">
+                        ARCHIVED
+                    </span>
+                </td>
+                <td>{{.CreatedAt.Format "Jan 02, 2006"}}</td>
+                <td>
+                    <a href="/admin/policies/{{.ID}}/versions" class="btn btn-secondary"
+                        style="font-size: 0.875rem; padding: 0.5rem 1rem;">
+                        View Versions
+                    </a>
+                </td>
+            </tr>
+            {{end}}
+        </tbody>
+    </table>
+    {{else}}
+    <p style="text-align: center; color: #6c757d; padding: 2rem;">
+        No archived policies found.
+    </p>
+    {{end}}
+</div>

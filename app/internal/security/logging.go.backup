@@ -1,0 +1,289 @@
+// Package security provides comprehensive logging functionality.
+// Implements SR-010 (Comprehensive Audit Logging) and SR-017 (Security Event Monitoring).
+package security
+
+import (
+	"context"
+	"encoding/json"
+	"fmt"
+	"log"
+	"os"
+	"time"
+)
+
+// LogLevel represents severity of log message.
+type LogLevel string
+
+const (
+	LogLevelDebug    LogLevel = "DEBUG"
+	LogLevelInfo     LogLevel = "INFO"
+	LogLevelWarning  LogLevel = "WARN"
+	LogLevelError    LogLevel = "ERROR"
+	LogLevelCritical LogLevel = "CRITICAL"
+	LogLevelSecurity LogLevel = "SECURITY" // Special level for security events
+)
+
+// SecurityEventType categorizes security-relevant events for monitoring.
+type SecurityEventType string
+
+const (
+	// Authentication events
+	EventLoginSuccess  SecurityEventType = "user.login.success"
+	EventLoginFailure  SecurityEventType = "user.login.failure"
+	EventLogout        SecurityEventType = "user.logout"
+	EventAccountLocked SecurityEventType = "security.account.locked"
+
+	// Authorization events
+	EventUnauthorizedAccess  SecurityEventType = "security.unauthorized.access"
+	EventPrivilegeEscalation SecurityEventType = "security.privilege.escalation"
+
+	// Policy management events
+	EventPolicyPublish       SecurityEventType = "policy.publish"
+	EventPolicyVersionCreate SecurityEventType = "policy.version.create"
+	EventPolicyArchive       SecurityEventType = "policy.archive"
+
+	// Acknowledgment events
+	EventAcknowledgmentSubmit SecurityEventType = "acknowledgment.submit"
+	EventAcknowledgmentRevoke SecurityEventType = "acknowledgment.revoke"
+
+	// Assignment events
+	EventAssignmentCreate SecurityEventType = "assignment.create"
+	EventAssignmentExtend SecurityEventType = "assignment.extend"
+	EventAssignmentRevoke SecurityEventType = "assignment.revoke"
+
+	// Export/reporting events
+	EventExportGenerate SecurityEventType = "export.generate"
+	EventLargeExport    SecurityEventType = "security.export.large"
+
+	// User management events
+	EventUserCreate     SecurityEventType = "user.create"
+	EventUserUpdate     SecurityEventType = "user.update"
+	EventUserDeactivate SecurityEventType = "user.deactivate"
+	EventUserRoleChange SecurityEventType = "user.role.change"
+
+	// Group management events
+	EventGroupCreate       SecurityEventType = "group.create"
+	EventGroupUpdate       SecurityEventType = "group.update"
+	EventGroupMemberAdd    SecurityEventType = "group.member.add"
+	EventGroupMemberRemove SecurityEventType = "group.member.remove"
+
+	// Security events
+	EventRateLimitExceeded   SecurityEventType = "security.rate.limit.exceeded"
+	EventCSRFViolation       SecurityEventType = "security.csrf.violation"
+	EventSQLInjectionAttempt SecurityEventType = "security.sqli.attempt"
+	EventXSSAttempt          SecurityEventType = "security.xss.attempt"
+	EventSessionFixation     SecurityEventType = "security.session.fixation"
+)
+
+// LogEntry represents a structured log entry.
+type LogEntry struct {
+	Timestamp  time.Time              `json:"timestamp"`
+	Level      LogLevel               `json:"level"`
+	Message    string                 `json:"message"`
+	EventType  SecurityEventType      `json:"event_type,omitempty"`
+	ActorID    *int                   `json:"actor_id,omitempty"`
+	ActorEmail string                 `json:"actor_email,omitempty"`
+	IPAddress  string                 `json:"ip_address,omitempty"`
+	UserAgent  string                 `json:"user_agent,omitempty"`
+	Method     string                 `json:"method,omitempty"`
+	Path       string                 `json:"path,omitempty"`
+	Status     int                    `json:"status,omitempty"`
+	LatencyMS  int64                  `json:"latency_ms,omitempty"`
+	Error      string                 `json:"error,omitempty"`
+	Extra      map[string]interface{} `json:"extra,omitempty"`
+}
+
+// Logger provides structured logging with security event tracking.
+type Logger struct {
+	output *log.Logger
+	level  LogLevel
+}
+
+// NewLogger creates a new structured logger.
+func NewLogger() *Logger {
+	return &Logger{
+		output: log.New(os.Stdout, "", 0), // No prefix, we'll format ourselves
+		level:  LogLevelInfo,
+	}
+}
+
+// SetLevel sets the minimum log level to output.
+func (l *Logger) SetLevel(level LogLevel) {
+	l.level = level
+}
+
+// log writes a log entry in JSON format.
+func (l *Logger) log(entry *LogEntry) {
+	jsonBytes, err := json.Marshal(entry)
+	if err != nil {
+		// Fallback to plain text if JSON marshaling fails
+		l.output.Printf("ERROR: Failed to marshal log entry: %v\n", err)
+		return
+	}
+
+	l.output.Println(string(jsonBytes))
+}
+
+// Info logs an informational message.
+func (l *Logger) Info(message string) {
+	l.log(&LogEntry{
+		Timestamp: time.Now().UTC(),
+		Level:     LogLevelInfo,
+		Message:   message,
+	})
+}
+
+// Warn logs a warning message.
+func (l *Logger) Warn(message string) {
+	l.log(&LogEntry{
+		Timestamp: time.Now().UTC(),
+		Level:     LogLevelWarning,
+		Message:   message,
+	})
+}
+
+// Error logs an error message.
+func (l *Logger) Error(message string, err error) {
+	entry := &LogEntry{
+		Timestamp: time.Now().UTC(),
+		Level:     LogLevelError,
+		Message:   message,
+	}
+
+	if err != nil {
+		entry.Error = err.Error()
+	}
+
+	l.log(entry)
+}
+
+// Critical logs a critical error message.
+func (l *Logger) Critical(message string, err error) {
+	entry := &LogEntry{
+		Timestamp: time.Now().UTC(),
+		Level:     LogLevelCritical,
+		Message:   message,
+	}
+
+	if err != nil {
+		entry.Error = err.Error()
+	}
+
+	l.log(entry)
+}
+
+// SecurityEvent logs a security-relevant event.
+// This is the primary method for audit logging (SR-010).
+func (l *Logger) SecurityEvent(eventType SecurityEventType, actorID *int, actorEmail, ipAddress, userAgent string, extra map[string]interface{}) {
+	entry := &LogEntry{
+		Timestamp:  time.Now().UTC(),
+		Level:      LogLevelSecurity,
+		EventType:  eventType,
+		ActorID:    actorID,
+		ActorEmail: actorEmail,
+		IPAddress:  ipAddress,
+		UserAgent:  userAgent,
+		Extra:      extra,
+	}
+
+	// Create descriptive message based on event type
+	entry.Message = string(eventType)
+	if actorEmail != "" {
+		entry.Message = fmt.Sprintf("%s by %s", eventType, actorEmail)
+	}
+
+	l.log(entry)
+}
+
+// HTTPRequest logs an HTTP request with timing information.
+func (l *Logger) HTTPRequest(method, path string, status int, latencyMS int64, ipAddress, userAgent string) {
+	l.log(&LogEntry{
+		Timestamp: time.Now().UTC(),
+		Level:     LogLevelInfo,
+		Message:   fmt.Sprintf("%s %s -> %d", method, path, status),
+		Method:    method,
+		Path:      path,
+		Status:    status,
+		LatencyMS: latencyMS,
+		IPAddress: ipAddress,
+		UserAgent: userAgent,
+	})
+}
+
+// SecurityMonitor provides security event detection and alerting.
+// Implements SR-017: Security Event Monitoring.
+type SecurityMonitor struct {
+	logger  *Logger
+	config  *SecurityConfig
+	alerter Alerter
+
+	// Event counters for threshold detection
+	failedLogins map[string]int // IP -> count
+	largeExports int
+	lastReset    time.Time
+}
+
+// Alerter interface for sending security alerts.
+type Alerter interface {
+	SendAlert(ctx context.Context, severity, title, message string) error
+}
+
+// NewSecurityMonitor creates a new security monitoring service.
+func NewSecurityMonitor(logger *Logger, config *SecurityConfig, alerter Alerter) *SecurityMonitor {
+	return &SecurityMonitor{
+		logger:       logger,
+		config:       config,
+		alerter:      alerter,
+		failedLogins: make(map[string]int),
+		lastReset:    time.Now(),
+	}
+}
+
+// MonitorLoginFailure tracks failed login attempts and alerts on suspicious patterns.
+func (sm *SecurityMonitor) MonitorLoginFailure(ipAddress string) {
+	sm.failedLogins[ipAddress]++
+
+	// Alert if threshold exceeded
+	if sm.failedLogins[ipAddress] >= sm.config.AlertThresholdFailures {
+		sm.logger.SecurityEvent(EventRateLimitExceeded, nil, "", ipAddress, "",
+			map[string]interface{}{
+				"failed_attempts": sm.failedLogins[ipAddress],
+				"threshold":       sm.config.AlertThresholdFailures,
+			})
+
+		// Send alert to security team
+		if sm.alerter != nil {
+			_ = sm.alerter.SendAlert(context.Background(), "HIGH",
+				"Suspicious Login Activity Detected",
+				fmt.Sprintf("IP %s has %d failed login attempts", ipAddress, sm.failedLogins[ipAddress]))
+		}
+	}
+}
+
+// MonitorLargeExport tracks large data exports and alerts on potential data exfiltration.
+func (sm *SecurityMonitor) MonitorLargeExport(actorEmail string, rowCount int, filters map[string]string) {
+	if rowCount >= sm.config.AlertThresholdExport {
+		sm.logger.SecurityEvent(EventLargeExport, nil, actorEmail, "", "",
+			map[string]interface{}{
+				"row_count": rowCount,
+				"filters":   filters,
+				"threshold": sm.config.AlertThresholdExport,
+			})
+
+		// Send alert to security team
+		if sm.alerter != nil {
+			_ = sm.alerter.SendAlert(context.Background(), "MEDIUM",
+				"Large Data Export Detected",
+				fmt.Sprintf("User %s exported %d records", actorEmail, rowCount))
+		}
+	}
+}
+
+// ResetCounters resets monitoring counters (called periodically).
+func (sm *SecurityMonitor) ResetCounters() {
+	if time.Since(sm.lastReset) > 1*time.Hour {
+		sm.failedLogins = make(map[string]int)
+		sm.largeExports = 0
+		sm.lastReset = time.Now()
+	}
+}

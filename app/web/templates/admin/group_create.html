@@ -1,0 +1,28 @@
+<div class="card">
+    <h1>Create New Group</h1>
+    <p style="color: #6c757d; margin-top: 0.5rem;">
+        Create a new organizational group or department.
+    </p>
+</div>
+
+<div class="card">
+    <form method="POST" action="/admin/groups/create" style="display: flex; flex-direction: column; gap: 1.5rem;">
+        <input type="hidden" name="csrf_token" value="{{$.csrf_token}}">
+        <div style="display: flex; flex-direction: column;">
+            <label for="name" style="font-weight: 500; margin-bottom: 0.5rem;">Group Name *</label>
+            <input type="text" id="name" name="name" required placeholder="e.g., Engineering, Sales, Human Resources"
+                style="padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;">
+        </div>
+
+        <div style="display: flex; flex-direction: column;">
+            <label for="description" style="font-weight: 500; margin-bottom: 0.5rem;">Description</label>
+            <textarea id="description" name="description" placeholder="Brief description of the group's purpose"
+                style="padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem; min-height: 100px; resize: vertical;"></textarea>
+        </div>
+
+        <div style="display: flex; gap: 1rem; padding-top: 1rem; border-top: 2px solid #ddd;">
+            <button type="submit" class="btn">Create Group</button>
+            <a href="/admin/groups" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>

@@ -1,0 +1,65 @@
+<div class="card">
+    <h1>Edit Policy Version</h1>
+    <p style="color: #6c757d; margin-top: 0.5rem;">
+        Update the policy version details below.
+    </p>
+</div>
+
+<div class="card">
+    <form method="POST" action="/admin/policies/{{.Version.ID}}/edit"
+        style="display: flex; flex-direction: column; gap: 1.5rem;">
+        <input type="hidden" name="csrf_token" value="{{$.csrf_token}}">
+        <div style="display: flex; flex-direction: column;">
+            <label for="version" style="font-weight: 500; margin-bottom: 0.5rem;">Version Number *</label>
+            <input type="text" id="version" name="version" required value="{{.Version.Version}}"
+                placeholder="e.g., 1.0, 2.1"
+                style="padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;">
+        </div>
+
+        <div style="display: flex; flex-direction: column;">
+            <label for="summary" style="font-weight: 500; margin-bottom: 0.5rem;">Summary *</label>
+            <input type="text" id="summary" name="summary" required value="{{.Version.Summary}}"
+                placeholder="Brief summary of the policy"
+                style="padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;">
+        </div>
+
+        <div style="display: flex; flex-direction: column;">
+            <label for="content" style="font-weight: 500; margin-bottom: 0.5rem;">Policy Content *</label>
+            <textarea id="content" name="content" required placeholder="Full policy content..."
+                style="padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem; min-height: 300px; resize: vertical;">{{.Version.Content}}</textarea>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div style="display: flex; flex-direction: column;">
+                <label for="status" style="font-weight: 500; margin-bottom: 0.5rem;">Status *</label>
+                <select id="status" name="status" required
+                    style="padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;">
+                    <option value="Draft" {{if eq .Version.Status "Draft" }}selected{{end}}>Draft</option>
+                    <option value="Active" {{if eq .Version.Status "Active" }}selected{{end}}>Active</option>
+                    <option value="Archived" {{if eq .Version.Status "Archived" }}selected{{end}}>Archived</option>
+                </select>
+            </div>
+
+            <div style="display: flex; flex-direction: column;">
+                <label for="effective_start" style="font-weight: 500; margin-bottom: 0.5rem;">Effective Start
+                    Date</label>
+                <input type="date" id="effective_start" name="effective_start" {{if
+                    .Version.EffectiveStart}}value="{{.Version.EffectiveStart.Format " 2006-01-02"}}"{{end}}
+                    style="padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;">
+            </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column;">
+            <label for="effective_end" style="font-weight: 500; margin-bottom: 0.5rem;">Effective End Date
+                (Optional)</label>
+            <input type="date" id="effective_end" name="effective_end" {{if
+                .Version.EffectiveEnd}}value="{{.Version.EffectiveEnd.Format " 2006-01-02"}}"{{end}}
+                style="padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;">
+        </div>
+
+        <div style="display: flex; gap: 1rem; padding-top: 1rem; border-top: 2px solid #ddd;">
+            <button type="submit" class="btn">Update Policy</button>
+            <a href="/admin/policies/{{.Version.PolicyID}}/versions" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>

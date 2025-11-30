@@ -1,0 +1,75 @@
+<div class="card">
+    <h1>Assign Policy</h1>
+    <p style="color: #6c757d; margin-top: 0.5rem;">
+        Assign a policy to users or groups with an optional due date.
+    </p>
+</div>
+
+<div class="card">
+    <form method="POST" action="/admin/assignments/create" style="display: flex; flex-direction: column; gap: 1.5rem;">
+        <input type="hidden" name="csrf_token" value="{{$.csrf_token}}">
+        <div style="display: flex; flex-direction: column;">
+            <label for="policy_version_id" style="font-weight: 500; margin-bottom: 0.5rem;">Select Policy *</label>
+            <select id="policy_version_id" name="policy_version_id" required
+                style="padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;">
+                <option value="">Choose a policy...</option>
+                {{range .Policies}}
+                <option value="{{.ID}}">{{.PolicyTitle}} - Version {{.Version}}</option>
+                {{end}}
+            </select>
+        </div>
+
+        <div style="display: flex; flex-direction: column;">
+            <label style="font-weight: 500; margin-bottom: 0.5rem;">Assign to Groups (Optional)</label>
+            <p style="color: #6c757d; font-size: 0.875rem; margin: 0 0 0.5rem 0;">
+                Select groups to assign the policy to all group members automatically.
+            </p>
+            <div
+                style="border: 1px solid #ddd; border-radius: 4px; padding: 1rem; max-height: 200px; overflow-y: auto;">
+                {{if .Groups}}
+                {{range .Groups}}
+                <label style="display: block; padding: 0.5rem; cursor: pointer; border-radius: 4px;">
+                    <input type="checkbox" name="group_ids[]" value="{{.ID}}" style="margin-right: 0.5rem;">
+                    <strong>{{.Name}}</strong>
+                    <span style="color: #6c757d; font-size: 0.875rem;">({{.MemberCount}} members)</span>
+                </label>
+                {{end}}
+                {{else}}
+                <p style="color: #6c757d; text-align: center; padding: 1rem;">No groups available. Create groups first!
+                </p>
+                {{end}}
+            </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column;">
+            <label style="font-weight: 500; margin-bottom: 0.5rem;">Assign to Individual Users (Optional)</label>
+            <p style="color: #6c757d; font-size: 0.875rem; margin: 0 0 0.5rem 0;">
+                Select specific users in addition to or instead of groups.
+            </p>
+            <div
+                style="border: 1px solid #ddd; border-radius: 4px; padding: 1rem; max-height: 200px; overflow-y: auto;">
+                {{if .Users}}
+                {{range .Users}}
+                <label style="display: block; padding: 0.5rem; cursor: pointer; border-radius: 4px;">
+                    <input type="checkbox" name="user_ids[]" value="{{.ID}}" style="margin-right: 0.5rem;">
+                    {{.Name}} <span style="color: #6c757d;">({{.Email}})</span>
+                </label>
+                {{end}}
+                {{else}}
+                <p style="color: #6c757d; text-align: center; padding: 1rem;">No users available.</p>
+                {{end}}
+            </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column;">
+            <label for="due_date" style="font-weight: 500; margin-bottom: 0.5rem;">Due Date (Optional)</label>
+            <input type="date" id="due_date" name="due_date"
+                style="padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;">
+        </div>
+
+        <div style="display: flex; gap: 1rem; padding-top: 1rem; border-top: 2px solid #ddd;">
+            <button type="submit" class="btn">Create Assignments</button>
+            <a href="/admin/dashboard" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>

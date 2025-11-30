@@ -1,0 +1,63 @@
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h1>Manage Policies</h1>
+            <p style="color: #6c757d; margin-top: 0.5rem;">
+                View, edit, and manage all policy versions.
+            </p>
+        </div>
+        <div style="display: flex; gap: 0.5rem;">
+            <!-- ✅ ADD THIS BUTTON -->
+            <a href="/admin/policies/archived" class="btn btn-secondary">
+                📦 View Archived
+            </a>
+            <a href="/admin/policies/publish" class="btn">+ Publish New Policy</a>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    {{if .Policies}}
+    <table>
+        <thead>
+            <tr>
+                <th>Policy Title</th>
+                <th>Created</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{range .Policies}}
+            <tr>
+                <td><strong>{{.Title}}</strong></td>
+                <td>{{.CreatedAt.Format "Jan 02, 2006"}}</td>
+                <td>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <a href="/admin/policies/{{.ID}}/versions" class="btn btn-secondary"
+                            style="font-size: 0.875rem; padding: 0.5rem 1rem;">
+                            View Versions
+                        </a>
+                        <a href="/admin/policies/{{.ID}}/new-version" class="btn"
+                            style="font-size: 0.875rem; padding: 0.5rem 1rem; background: #10b981; color: white;">
+                            + New Version
+                        </a>
+                        <form method="POST" action="/admin/policies/{{.ID}}/archive" style="display: inline;">
+                            <input type="hidden" name="csrf_token" value="{{$.csrf_token}}">
+                            <button type="submit" class="btn btn-secondary"
+                                style="font-size: 0.875rem; padding: 0.5rem 1rem; background: #dc2626; color: white;"
+                                onclick="return confirm('Are you sure you want to archive this policy?');">
+                                Archive
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {{end}}
+        </tbody>
+    </table>
+    {{else}}
+    <p style="text-align: center; color: #6c757d; padding: 3rem;">
+        No policies found. Create your first policy!
+    </p>
+    {{end}}
+</div>

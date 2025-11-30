@@ -1,0 +1,77 @@
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h1>Group Members</h1>
+            <p style="color: #6c757d; margin-top: 0.5rem;">
+                Manage users assigned to this group.
+            </p>
+        </div>
+        <a href="/admin/groups" class="btn btn-secondary">← Back to Groups</a>
+    </div>
+</div>
+
+<!-- Add Member Section -->
+<div class="card">
+    <h2 style="font-size: 1.25rem; margin-bottom: 1rem;">Add Member</h2>
+    <form method="POST" action="/admin/groups/{{.GroupID}}/members"
+        style="display: flex; gap: 1rem; align-items: flex-end;">
+        <input type="hidden" name="csrf_token" value="{{$.csrf_token}}">
+        <div style="flex: 1; display: flex; flex-direction: column;">
+            <label for="user_id" style="font-weight: 500; margin-bottom: 0.5rem;">Select User</label>
+            <select id="user_id" name="user_id" required
+                style="padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;">
+                <option value="">Choose a user...</option>
+                {{range .AllUsers}}
+                <option value="{{.ID}}">{{.Name}} ({{.Email}})</option>
+                {{end}}
+            </select>
+        </div>
+        <button type="submit" class="btn" style="padding: 0.75rem 1.5rem;">Add to Group</button>
+    </form>
+</div>
+
+<!-- Current Members Section -->
+<div class="card">
+    <h2 style="font-size: 1.25rem; margin-bottom: 1rem;">Current Members</h2>
+    {{if .Members}}
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{range .Members}}
+            <tr>
+                <td><strong>{{.Name}}</strong></td>
+                <td>{{.Email}}</td>
+                <td>
+                    {{if eq .Role "admin"}}
+                    <span class="badge badge-success">Admin</span>
+                    {{else}}
+                    <span class="badge badge-info">Staff</span>
+                    {{end}}
+                </td>
+                <td>
+                    <form method="POST" action="/admin/groups/{{$.GroupID}}/members/{{.ID}}/remove"
+                        style="display: inline;">
+                        <input type="hidden" name="csrf_token" value="{{$.csrf_token}}">
+                        <button type="submit" class="btn btn-secondary"
+                            style="font-size: 0.875rem; padding: 0.5rem 1rem;">
+                            Remove
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {{end}}
+        </tbody>
+    </table>
+    {{else}}
+    <p style="text-align: center; color: #6c757d; padding: 3rem;">
+        No members in this group yet. Add users above!
+    </p>
+    {{end}}
+</div>

@@ -1,0 +1,58 @@
+<div class="card">
+    <h1>Publish New Policy</h1>
+    <p style="color: #6c757d; margin-top: 0.5rem;">
+        Create and publish a new policy or policy version.
+    </p>
+</div>
+
+<div class="card">
+    <form method="POST" action="/admin/policies/publish" style="display: flex; flex-direction: column; gap: 1.5rem;">
+        <input type="hidden" name="csrf_token" value="{{$.csrf_token}}">
+        <div style="display: flex; flex-direction: column;">
+            <label for="title" style="font-weight: 500; margin-bottom: 0.5rem;">Policy Title *</label>
+            <input type="text" id="title" name="title" required placeholder="e.g., Data Security Policy"
+                style="padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div style="display: flex; flex-direction: column;">
+                <label for="version" style="font-weight: 500; margin-bottom: 0.5rem;">Version *</label>
+                <input type="text" id="version" name="version" required placeholder="e.g., 1.0, 2.1"
+                    style="padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;">
+            </div>
+
+            <div style="display: flex; flex-direction: column;">
+                <label for="status" style="font-weight: 500; margin-bottom: 0.5rem;">Status *</label>
+                <select id="status" name="status" required
+                    style="padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;">
+                    <option value="Draft">Draft</option>
+                    <option value="Active" selected>Active</option>
+                </select>
+            </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column;">
+            <label for="summary" style="font-weight: 500; margin-bottom: 0.5rem;">Summary</label>
+            <textarea id="summary" name="summary" placeholder="Brief summary of the policy"
+                style="padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem; min-height: 100px; resize: vertical;"></textarea>
+        </div>
+
+        <div style="display: flex; flex-direction: column;">
+            <label for="content" style="font-weight: 500; margin-bottom: 0.5rem;">Policy Content *</label>
+            <textarea id="content" name="content" required placeholder="Enter the full policy content here..."
+                style="padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem; min-height: 300px; resize: vertical;"></textarea>
+        </div>
+
+        <div style="display: flex; flex-direction: column;">
+            <label for="effective_start" style="font-weight: 500; margin-bottom: 0.5rem;">Effective Start Date
+                (Optional)</label>
+            <input type="date" id="effective_start" name="effective_start"
+                style="padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;">
+        </div>
+
+        <div style="display: flex; gap: 1rem; padding-top: 1rem; border-top: 2px solid #ddd;">
+            <button type="submit" class="btn">Publish Policy</button>
+            <a href="/admin/dashboard" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>

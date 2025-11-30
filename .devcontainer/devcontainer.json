@@ -1,0 +1,54 @@
+{
+  "name": "CheckTheBox Dev Environment",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspace/app",
+  
+  "postCreateCommand": "bash /workspace/.devcontainer/setup.sh",
+  
+  "forwardPorts": [8080, 5432],
+  "portsAttributes": {
+    "8080": {
+      "label": "Application",
+      "onAutoForward": "notify"
+    },
+    "5432": {
+      "label": "PostgreSQL",
+      "onAutoForward": "silent"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        // Go Development
+        "golang.go",
+
+        // Database Management
+        "ms-ossdata.vscode-pgsql"
+      ],
+      "settings": {
+        "go.toolsManagement.checkForUpdates": "local",
+        "go.useLanguageServer": true,
+        "editor.formatOnSave": true,
+        "[go]": {
+          "editor.defaultFormatter": "golang.go"
+        },
+        "[sql]": {
+          "editor.formatOnSave": true
+        },
+        "sqltools.connections": [
+          {
+            "name": "CheckTheBox PostgreSQL",
+            "driver": "PostgreSQL",
+            "server": "localhost",
+            "port": 5432,
+            "database": "checkthebox",
+            "username": "checkthebox",
+            "password": "devpassword"
+          }
+        ]
+      }
+    }
+  }
+}
+

@@ -1,0 +1,63 @@
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h1>Policy Versions</h1>
+            <p style="color: #6c757d; margin-top: 0.5rem;">
+                View and manage all versions of this policy.
+            </p>
+        </div>
+        <a href="/admin/policies" class="btn btn-secondary">← Back to Policies</a>
+    </div>
+</div>
+
+<div class="card">
+    {{if .Versions}}
+    <table>
+        <thead>
+            <tr>
+                <th>Version</th>
+                <th>Summary</th>
+                <th>Status</th>
+                <th>Effective Start</th>
+                <th>Created</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{range .Versions}}
+            <tr>
+                <td><strong>{{.Version}}</strong></td>
+                <td>{{.Summary}}</td>
+                <td>
+                    {{if eq .Status "Active"}}
+                    <span class="badge badge-success">Active</span>
+                    {{else if eq .Status "Draft"}}
+                    <span class="badge badge-warning">Draft</span>
+                    {{else}}
+                    <span class="badge badge-secondary">Archived</span>
+                    {{end}}
+                </td>
+                <td>
+                    {{if .EffectiveStart}}
+                    {{.EffectiveStart.Format "Jan 02, 2006"}}
+                    {{else}}
+                    <span style="color: #999;">N/A</span>
+                    {{end}}
+                </td>
+                <td>{{.CreatedAt.Format "Jan 02, 2006"}}</td>
+                <td>
+                    <a href="/admin/policies/{{.ID}}/edit" class="btn btn-secondary"
+                        style="font-size: 0.875rem; padding: 0.5rem 1rem;">
+                        Edit
+                    </a>
+                </td>
+            </tr>
+            {{end}}
+        </tbody>
+    </table>
+    {{else}}
+    <p style="text-align: center; color: #6c757d; padding: 3rem;">
+        No versions found for this policy.
+    </p>
+    {{end}}
+</div>
